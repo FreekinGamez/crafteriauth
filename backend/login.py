@@ -1,4 +1,4 @@
-from werkzeug.security import check_password_hash
+import bcrypt  # Using bcrypt instead of Werkzeug
 import logging
 from . import db
 
@@ -19,7 +19,21 @@ def login_user(email, password, redirect_service=None):
     # Check if user exists
     user = get_user_by_email(email)
     
-    if not user or not check_password_hash(user['password_hash'], password):
+    # Verify password with bcrypt
+    if not user:
+        logger.warning(f"Login attempt for non-existent email: {email}")
+        return {
+            'success': False,
+            'error': 'Invalid email or password'
+        }
+        
+    # Convert input password to bytes
+    password_bytes = password.encode('utf-8') if isinstance(password, str) else password
+    # Convert stored hash to bytes if it's not already
+    stored_hash = user['password_hash'].encode('utf-8') if isinstance(user['password_hash'], str) else user['password_hash']
+    
+    # Check if password matches
+    if not bcrypt.checkpw(password_bytes, stored_hash):
         logger.warning(f"Failed login attempt for email: {email}")
         return {
             'success': False,

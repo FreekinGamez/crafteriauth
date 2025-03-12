@@ -4,25 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Account - CrafteriAuth</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/icon.png') }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <header class="header">
         <a href="{{ url_for('home') }}" class="logo">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            Crafteri
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Crafteri" class="logo-image">
         </a>
     </header>
 
     <main class="main-content">
         <div class="auth-container">
             <div class="auth-header">
-                <h1>Create an account</h1>
+                <h1>Create an <span>account</span></h1>
                 <p>Join the Crafteri ecosystem</p>
             </div>
             
@@ -53,7 +49,7 @@
                 </div>
                 
                 <div class="form-group">
-                    <button type="submit">Create account</button>
+                    <button type="submit"><span>Create Account</span></button>
                 </div>
                 
                 <div class="form-footer">
