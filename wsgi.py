@@ -5,10 +5,11 @@ import os
 sys.path.insert(0, '/var/www/auth')
 
 # If using virtualenv (recommended)
-activate_this = '/var/www/auth/.venv/bin/activate'
-if os.path.exists(activate_this):
-    with open(activate_this) as file_:
-        exec(file_.read(), dict(__file__=activate_this))
+venv_path = '/var/www/auth/.venv'
+python_path = os.path.join(venv_path, 'bin')
+site_packages = os.path.join(venv_path, 'lib', 'python3.x', 'site-packages')
+os.environ['PATH'] = f"{python_path}:{os.environ['PATH']}"
+sys.path.insert(0, site_packages)
 
 from app import app as application
 
