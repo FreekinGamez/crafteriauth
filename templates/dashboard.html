@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - CrafteriAuth</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header>
+            <h1>CrafteriAuth Dashboard</h1>
+            <div class="user-info">
+                Welcome, {{ user.username }}!
+                <a href="{{ url_for('logout') }}" class="logout-btn">Log Out</a>
+            </div>
+        </header>
+        
+        <main>
+            <section class="user-profile">
+                <h2>Your Profile</h2>
+                <div class="profile-details">
+                    <p><strong>Username:</strong> {{ user.username }}</p>
+                    <p><strong>Email:</strong> {{ user.email }}</p>
+                    <p><strong>Account Created:</strong> {{ user.created_at.strftime('%B %d, %Y') }}</p>
+                </div>
+            </section>
+            
+            <section class="connected-services">
+                <h2>Connected Services</h2>
+                <div class="services-list">
+                    <!-- This would populate dynamically with the services the user has connected with -->
+                    <p>No connected services yet.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
