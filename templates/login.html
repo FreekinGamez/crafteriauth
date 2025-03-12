@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - CrafteriAuth</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-form">
+            <h1>Log in with Crafteri</h1>
+            
+            {% if service %}
+            <p class="service-notice">You're logging in to <strong>{{ service }}</strong></p>
+            {% endif %}
+            
+            {% if error %}
+            <div class="error-message">{{ error }}</div>
+            {% endif %}
+            
+            <form method="POST" action="{{ url_for('login') }}">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                
+                <div class="form-group">
+                    <button type="submit">Log In</button>
+                </div>
+            </form>
+            
+            <div class="form-footer">
+                <p>Don't have an account? <a href="{{ url_for('signup', service=service) }}">Sign Up</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

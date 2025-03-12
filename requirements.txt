@@ -1,0 +1,6 @@
+Flask==2.2.3
+Flask-SQLAlchemy==3.0.3
+psycopg2-binary==2.9.6
+PyJWT==2.6.0
+Werkzeug==2.2.3
+python-dotenv==1.0.0
