@@ -2,10 +2,19 @@ from flask import Flask, request, jsonify, render_template, redirect, url_for, s
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
-import jwt
 import datetime
 import uuid
 from dotenv import load_dotenv
+
+# Use the standard jwt import name (PyJWT registers as 'jwt')
+try:
+    import jwt
+except ImportError:
+    print("PyJWT not found, attempting to install...")
+    import subprocess
+    import sys
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "PyJWT"])
+    import jwt
 
 # Load environment variables from .env file
 load_dotenv()
@@ -78,8 +87,12 @@ def generate_token(user_id, service=None):
     if service:
         payload['aud'] = service
     
-    # Create JWT token
+    # Create JWT token using PyJWT
     token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm="HS256")
+    
+    # If token is bytes, convert to string
+    if isinstance(token, bytes):
+        token = token.decode('utf-8')
     
     # Store token in database
     new_token = Token(
@@ -272,4 +285,4 @@ if __name__ == '__main__':
     # Create tables if they don't exist
     with app.app_context():
         db.create_all()
-    app.run(debug=True)
+    app.run(debug=False)

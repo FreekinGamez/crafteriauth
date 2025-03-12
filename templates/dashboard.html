@@ -4,19 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - CrafteriAuth</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <div class="dashboard-container">
-        <header>
-            <h1>CrafteriAuth Dashboard</h1>
-            <div class="user-info">
-                Welcome, {{ user.username }}!
-                <a href="{{ url_for('logout') }}" class="logout-btn">Log Out</a>
-            </div>
-        </header>
-        
-        <main>
+    <header class="header">
+        <a href="{{ url_for('home') }}" class="logo">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Crafteri
+        </a>
+        <div class="user-info">
+            Welcome, {{ user.username }}!
+            <a href="{{ url_for('logout') }}" class="logout-btn">Sign out</a>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="dashboard-container">
             <section class="user-profile">
                 <h2>Your Profile</h2>
                 <div class="profile-details">
@@ -33,7 +41,16 @@
                     <p>No connected services yet.</p>
                 </div>
             </section>
-        </main>
-    </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+            <a href="#">Support</a>
+        </div>
+        <p>© Crafteri Industries 2025. All rights reserved.</p>
+    </footer>
 </body>
 </html>
