@@ -4,18 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - CrafteriAuth</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/icon.png') }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <header class="header">
         <a href="{{ url_for('home') }}" class="logo">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            Crafteri
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Crafteri" class="logo-image">
         </a>
         <div class="user-info">
             Welcome, {{ user.username }}!
@@ -37,8 +33,10 @@
             <section class="connected-services">
                 <h2>Connected Services</h2>
                 <div class="services-list">
-                    <!-- This would populate dynamically with the services the user has connected with -->
-                    <p>No connected services yet.</p>
+                    <div class="empty-state">
+                        <img src="{{ url_for('static', filename='images/icon.png') }}" alt="No services">
+                        <p>No connected services yet.</p>
+                    </div>
                 </div>
             </section>
         </div>

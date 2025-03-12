@@ -1,6 +1,6 @@
-from werkzeug.security import generate_password_hash
 import logging
 from . import db
+import bcrypt  # Using bcrypt instead of Werkzeug
 
 # Configure logging
 logger = logging.getLogger('signup')
@@ -26,8 +26,12 @@ def signup_user(username, email, password, redirect_service=None):
             'error': 'Email already exists'
         }
     
-    # Create password hash
-    password_hash = generate_password_hash(password)
+    # Create password hash using bcrypt
+    # Convert password to bytes if it's not already
+    password_bytes = password.encode('utf-8') if isinstance(password, str) else password
+    # Generate a salt and hash the password
+    salt = bcrypt.gensalt()
+    password_hash = bcrypt.hashpw(password_bytes, salt).decode('utf-8')
     
     # Create new user
     new_user_id = create_user(username, email, password_hash)

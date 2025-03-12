@@ -1,22 +1,24 @@
 :root {
+  /* Core colors */
   --bg-dark: #121212;
   --bg-card: #1e1e1e;
   --color-primary: #ffcc00;
   --color-primary-dark: #e6b800;
-  --color-primary-light: #ffd633;
-  --color-primary-glow: rgba(255, 204, 0, 0.5);
+  --color-primary-hover: #ffdc40;
   --color-text: #f5f5f5;
   --color-text-secondary: #a0a0a0;
   --color-border: #333333;
   --color-error: #ff4d4d;
+  
+  /* Shadows and effects */
   --border-radius: 8px;
   --shadow-default: 0 10px 20px rgba(0, 0, 0, 0.3);
   --shadow-hover: 0 15px 30px rgba(0, 0, 0, 0.5);
   --blur-amount: 10px;
-  --transition-speed: 0.3s;
+  --transition-speed: 0.2s;
 }
 
-/* Base styles */
+/* Reset and base styles */
 * {
   margin: 0;
   padding: 0;
@@ -31,49 +33,51 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  position: relative;
-  overflow-x: hidden;
 }
 
+/* Dark gradient background */
 body::before {
   content: '';
   position: fixed;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background: radial-gradient(
     circle at center,
-    rgba(30, 30, 30, 0.8) 0%,
-    rgba(18, 18, 18, 1) 70%
+    rgba(30, 30, 30, 0.7) 0%,
+    rgba(18, 18, 18, 1) 100%
   );
   z-index: -1;
 }
 
-/* Header */
+/* Header styles */
 .header {
-  position: relative;
+  position: sticky;
+  top: 0;
   padding: 1.5rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   backdrop-filter: blur(var(--blur-amount));
   -webkit-backdrop-filter: blur(var(--blur-amount));
-  background-color: rgba(18, 18, 18, 0.8);
+  background-color: rgba(18, 18, 18, 0.9);
   border-bottom: 1px solid rgba(255, 204, 0, 0.1);
-  z-index: 10;
+  z-index: 100;
 }
 
 .header .logo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  text-decoration: none;
   display: flex;
   align-items: center;
-  text-decoration: none;
-  transition: all var(--transition-speed) ease;
+  transition: transform var(--transition-speed) ease;
 }
 
 .header .logo:hover {
   transform: translateY(-2px);
-  filter: drop-shadow(0 0 8px var(--color-primary-glow));
 }
 
 .logo-image {
@@ -81,22 +85,16 @@ body::before {
   width: auto;
 }
 
-/* Main content */
+/* Main content area */
 .main-content {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  position: relative;
 }
 
-.dashboard-main {
-  align-items: flex-start;
-  padding-top: 3rem;
-}
-
-/* Auth container */
+/* Auth container (login/signup form) */
 .auth-container {
   width: 100%;
   max-width: 420px;
@@ -107,15 +105,9 @@ body::before {
   position: relative;
   overflow: hidden;
   border: 1px solid var(--color-border);
-  transition: transform var(--transition-speed) ease, 
-              box-shadow var(--transition-speed) ease;
 }
 
-.auth-container:hover {
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
-}
-
-.auth-container:before {
+.auth-container::before {
   content: "";
   position: absolute;
   top: 0;
@@ -123,8 +115,6 @@ body::before {
   width: 100%;
   height: 4px;
   background: linear-gradient(90deg, var(--color-primary), var(--color-primary-dark), var(--color-primary));
-  background-size: 200% 100%;
-  animation: gradientShift 3s ease infinite;
 }
 
 .auth-header {
@@ -136,10 +126,11 @@ body::before {
   font-size: 1.75rem;
   font-weight: 700;
   margin-bottom: 0.75rem;
-  background: linear-gradient(90deg, var(--color-text), var(--color-primary));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--color-text);
+}
+
+.auth-header h1 span {
+  color: var(--color-primary);
 }
 
 .auth-header p {
@@ -151,11 +142,10 @@ body::before {
 .service-notice {
   margin-bottom: 1.5rem;
   padding: 1rem;
-  background-color: rgba(255, 204, 0, 0.1);
+  background-color: rgba(255, 204, 0, 0.08);
   border-radius: var(--border-radius);
   font-size: 0.9rem;
   border-left: 3px solid var(--color-primary);
-  animation: pulse 2s infinite ease-in-out;
 }
 
 .service-notice strong {
@@ -175,7 +165,6 @@ body::before {
   color: var(--color-text);
   font-weight: 500;
   font-size: 0.9rem;
-  transition: color var(--transition-speed) ease;
 }
 
 .form-group input {
@@ -192,75 +181,167 @@ body::before {
 .form-group input:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(255, 204, 0, 0.3);
+  box-shadow: 0 0 0 2px rgba(255, 204, 0, 0.2);
 }
 
-.form-group input:focus + label {
-  color: var(--color-primary);
-}
-
-/* Button styles */
-.btn-primary {
+/* Button styles with smooth traveling line animation */
+.form-group button {
   width: 100%;
-  padding: 0.75rem;
+  padding: 0.85rem;
   background-color: var(--color-primary);
-  color: #000;
+  color: #121212;
   border: none;
   border-radius: var(--border-radius);
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
   position: relative;
-  overflow: hidden;
-  transition: all 0.3s ease;
+  overflow: visible;
 }
 
-.btn-primary:hover {
-  background-color: var(--color-primary-dark);
-  box-shadow: 0 0 20px var(--color-primary-glow);
+/* Button hover state */
+.form-group button:hover {
+  background-color: var(--color-primary-hover);
   transform: translateY(-2px);
+  box-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
 }
 
-.btn-primary:active {
+.form-group button:active {
   transform: translateY(0);
 }
 
-/* Button shine effect */
-.btn-primary .btn-shine {
+/* Create the traveling line segment */
+.form-group button::after {
+  content: '';
   position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    120deg,
-    transparent,
-    rgba(255, 255, 255, 0.3),
-    transparent
-  );
-  transition: all 0.5s ease;
+  width: 20px;
+  height: 2px;
+  background-color: white;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
 }
 
-.btn-primary:hover .btn-shine {
-  left: 100%;
+/* Apply the animation only on hover */
+.form-group button:hover::after {
+  opacity: 1;
+  animation: simple-trace 3s infinite;
+}
+
+/* Simple animation that traces around the button */
+@keyframes simple-trace {
+  /* Start hidden */
+  0% {
+    opacity: 0;
+    top: -1px;
+    left: -20px;
+  }
+  
+  /* Fade in & top edge start */
+  5% {
+    opacity: 1;
+    top: -1px;
+    left: 0;
+    width: 20px;
+    height: 2px;
+  }
+  
+  /* Top edge moving right */
+  25% {
+    top: -1px;
+    left: calc(100% - 20px);
+    width: 20px;
+    height: 2px;
+  }
+  
+  /* Right edge moving down */
+  30% {
+    top: 0;
+    left: calc(100% + 1px);
+    width: 2px;
+    height: 20px;
+  }
+  
+  /* Right edge continuing down */
+  45% {
+    top: calc(100% - 20px);
+    left: calc(100% + 1px);
+    width: 2px;
+    height: 20px;
+  }
+  
+  /* Bottom edge moving left */
+  50% {
+    top: calc(100% + 1px);
+    left: calc(100% - 20px);
+    width: 20px;
+    height: 2px;
+  }
+  
+  /* Bottom edge continuing left */
+  65% {
+    top: calc(100% + 1px);
+    left: 0;
+    width: 20px;
+    height: 2px;
+  }
+  
+  /* Left edge moving up */
+  70% {
+    top: calc(100% - 20px);
+    left: -1px;
+    width: 2px;
+    height: 20px;
+  }
+  
+  /* Left edge continuing up */
+  85% {
+    top: 0;
+    left: -1px;
+    width: 2px;
+    height: 20px;
+  }
+  
+  /* Fade out */
+  90% {
+    opacity: 1;
+    top: -1px;
+    left: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  /* Invisible wait period */
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Ensure button content is above effects */
+.form-group button span {
+  position: relative;
+  z-index: 2;
 }
 
 .form-footer {
-  margin-top: 1.5rem;
+  margin-top: 1.75rem;
   text-align: center;
   color: var(--color-text-secondary);
   font-size: 0.9rem;
 }
 
+/* Link underline animation restored */
 .form-footer a {
   color: var(--color-primary);
   text-decoration: none;
   font-weight: 500;
   position: relative;
-  transition: color 0.2s ease;
+  transition: color var(--transition-speed) ease;
 }
 
-.form-footer a:after {
+.form-footer a::after {
   content: '';
   position: absolute;
   width: 0;
@@ -272,10 +353,10 @@ body::before {
 }
 
 .form-footer a:hover {
-  color: var(--color-primary-light);
+  color: var(--color-primary-hover);
 }
 
-.form-footer a:hover:after {
+.form-footer a:hover::after {
   width: 100%;
 }
 
@@ -288,7 +369,6 @@ body::before {
   color: var(--color-error);
   font-size: 0.9rem;
   border-radius: 0 var(--border-radius) var(--border-radius) 0;
-  animation: shake 0.5s ease-in-out;
 }
 
 /* Footer */
@@ -299,9 +379,9 @@ body::before {
   color: var(--color-text-secondary);
   backdrop-filter: blur(var(--blur-amount));
   -webkit-backdrop-filter: blur(var(--blur-amount));
-  background-color: rgba(18, 18, 18, 0.8);
+  background-color: rgba(18, 18, 18, 0.9);
   border-top: 1px solid rgba(255, 204, 0, 0.1);
-  z-index: 10;
+  margin-top: auto;
 }
 
 .footer .footer-links {
@@ -314,11 +394,11 @@ body::before {
 .footer .footer-links a {
   color: var(--color-text-secondary);
   text-decoration: none;
+  transition: color var(--transition-speed) ease;
   position: relative;
-  transition: color 0.2s ease;
 }
 
-.footer .footer-links a:after {
+.footer .footer-links a::after {
   content: '';
   position: absolute;
   width: 0;
@@ -333,15 +413,14 @@ body::before {
   color: var(--color-primary);
 }
 
-.footer .footer-links a:hover:after {
+.footer .footer-links a:hover::after {
   width: 100%;
 }
 
 /* Dashboard styles */
 .dashboard-container {
   max-width: 1100px;
-  margin: 0 auto;
-  padding: 0 2rem;
+  margin: 2rem auto;
   width: 100%;
 }
 
@@ -358,9 +437,8 @@ body::before {
   border-radius: var(--border-radius);
   text-decoration: none;
   font-size: 0.9rem;
-  transition: all 0.3s ease;
+  transition: all var(--transition-speed) ease;
   border: 1px solid rgba(255, 77, 77, 0.3);
-  display: inline-block;
 }
 
 .logout-btn:hover {
@@ -371,7 +449,7 @@ body::before {
 section {
   background-color: var(--bg-card);
   border-radius: var(--border-radius);
-  padding: 1.5rem;
+  padding: 1.75rem;
   margin-bottom: 2rem;
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-default);
@@ -386,14 +464,14 @@ section:hover {
 
 section h2 {
   color: var(--color-primary);
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
   font-size: 1.25rem;
   border-bottom: 1px solid var(--color-border);
   padding-bottom: 0.75rem;
 }
 
 .profile-details p {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
 }
 
 .profile-details strong {
@@ -401,15 +479,20 @@ section h2 {
   font-weight: 500;
 }
 
+/* Services section */
+.services-list {
+  padding: 1rem 0;
+}
+
 .empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  padding: 2rem 0;
 }
 
-.empty-state .empty-icon {
+.empty-state img {
   width: 48px;
   height: 48px;
   margin-bottom: 1rem;
@@ -420,49 +503,31 @@ section h2 {
   color: var(--color-text-secondary);
 }
 
-/* Animations */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-  20%, 40%, 60%, 80% { transform: translateX(5px); }
-}
-
-@keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(255, 204, 0, 0.2); }
-  70% { box-shadow: 0 0 0 5px rgba(255, 204, 0, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(255, 204, 0, 0); }
-}
-
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.auth-container {
-  animation: fadeIn 0.6s ease-out forwards;
-}
-
-section {
-  animation: fadeIn 0.6s ease-out forwards;
-}
-
-section:nth-child(2) {
-  animation-delay: 0.1s;
-}
-
-section:nth-child(3) {
-  animation-delay: 0.2s;
-}
-
 /* Responsive styles */
 @media (max-width: 768px) {
   .header, .footer {
+    padding: 1.25rem;
+  }
+  
+  .main-content {
+    padding: 1.25rem;
+  }
+  
+  .auth-container {
+    padding: 1.75rem;
+  }
+  
+  .dashboard-container {
+    margin: 1rem auto;
+  }
+  
+  .footer .footer-links {
+    gap: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
     padding: 1rem;
   }
   
@@ -474,12 +539,8 @@ section:nth-child(3) {
     padding: 1.5rem;
   }
   
-  .dashboard-container {
-    padding: 0 1rem;
-  }
-  
   .footer .footer-links {
-    flex-direction: column;
-    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 }
