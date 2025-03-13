@@ -1,25 +1,16 @@
 import logging
+import bcrypt
 from . import db
-import bcrypt  # Using bcrypt instead of Werkzeug
+from .api import get_user_by_email, get_user_by_id
 
 # Configure logging
 logger = logging.getLogger('signup')
 
 def signup_user(username, email, password, redirect_service=None):
-    """Register a new user
-    
-    Args:
-        username (str): User's username
-        email (str): User's email
-        password (str): User's password
-        redirect_service (str, optional): Service to redirect to after signup
-        
-    Returns:
-        dict: Result containing success status, user data if successful, error if unsuccessful
-    """
+    """Register a new user"""
     # Check if user already exists
-    existing_user = get_user_by_email(email)
-    if existing_user:
+    existing_user_result = get_user_by_email(email)
+    if existing_user_result['success']:
         logger.warning(f"Signup attempt with existing email: {email}")
         return {
             'success': False,
@@ -44,7 +35,8 @@ def signup_user(username, email, password, redirect_service=None):
         }
     
     # Get the user data
-    new_user = get_user_by_id(new_user_id)
+    new_user_result = get_user_by_id(new_user_id)
+    new_user = new_user_result['user']
     
     result = {
         'success': True,
@@ -65,36 +57,6 @@ def signup_user(username, email, password, redirect_service=None):
     
     logger.info(f"New user created: {email}")
     return result
-
-def get_user_by_email(email):
-    """Get a user by email"""
-    query = "SELECT id, username, email, created_at, last_login FROM users WHERE email = %s"
-    row = db.execute_query(query, (email,), fetchone=True)
-    
-    if row:
-        return {
-            'id': row[0],
-            'username': row[1],
-            'email': row[2],
-            'created_at': row[3],
-            'last_login': row[4]
-        }
-    return None
-
-def get_user_by_id(user_id):
-    """Get a user by ID"""
-    query = "SELECT id, username, email, created_at, last_login FROM users WHERE id = %s"
-    row = db.execute_query(query, (user_id,), fetchone=True)
-    
-    if row:
-        return {
-            'id': row[0],
-            'username': row[1],
-            'email': row[2],
-            'created_at': row[3],
-            'last_login': row[4]
-        }
-    return None
 
 def create_user(username, email, password_hash):
     """Create a new user"""

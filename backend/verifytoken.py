@@ -5,7 +5,6 @@ import jwt
 from . import db
 from pathlib import Path
 from dotenv import load_dotenv
-from .login import get_user_by_id
 
 # Configure logging
 logger = logging.getLogger('verifytoken')
@@ -53,7 +52,7 @@ def verify_token(token):
             }
         
         # Get user information
-        user = get_user_by_id(payload['sub'])
+        user = get_user_by_id_for_verification(payload['sub'])
         if not user:
             logger.warning(f"User not found for token: {token[:20]}...")
             return {
@@ -97,5 +96,19 @@ def get_token(token_value):
             'created_at': row[2],
             'expires_at': row[3],
             'issued_for': row[4]
+        }
+    return None
+
+# Add this function directly in verifytoken.py to avoid circular imports
+def get_user_by_id_for_verification(user_id):
+    """Get basic user information by ID for token verification"""
+    query = "SELECT id, username, email FROM users WHERE id = %s"
+    row = db.execute_query(query, (user_id,), fetchone=True)
+    
+    if row:
+        return {
+            'id': row[0],
+            'username': row[1],
+            'email': row[2]
         }
     return None
