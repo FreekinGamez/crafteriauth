@@ -4,6 +4,7 @@ import uuid
 import logging
 from pathlib import Path
 from dotenv import load_dotenv
+from functools import wraps
 
 # Initialize logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -15,6 +16,7 @@ from .login import login_user, get_user_by_id
 from .signup import signup_user
 from .gentoken import generate_token
 from .verifytoken import verify_token
+from .api import get_user_by_token, get_user_by_id, get_user_by_name, get_user_by_email
 
 # Load environment variables from .env file in project root
 project_root = Path(__file__).parent.parent
@@ -27,6 +29,44 @@ app = Flask(__name__,
 
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev_secret_key')
 
+# Helper function to extract domain from URL
+def extract_domain(url):
+    """Extract domain from URL for display purposes"""
+    if not url:
+        return None
+        
+    # Remove protocol if present
+    if '://' in url:
+        domain = url.split('://', 1)[1]
+    else:
+        domain = url
+        
+    # Take only the part before the first slash if there is one
+    if '/' in domain:
+        domain = domain.split('/', 1)[0]
+        
+    return domain
+
+# Add API security middleware
+def check_api_auth():
+    """Check API authorization"""
+    # Get API key from request - using a simpler header name
+    api_key = request.headers.get('API-Key')
+    
+    # Check if API key is valid
+    valid_api_key = os.environ.get('API_KEY', 'dev_api_key')
+    
+    return api_key and api_key == valid_api_key
+
+# Add this function to each API endpoint
+def api_auth_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not check_api_auth():
+            return jsonify({'success': False, 'error': 'Unauthorized'}), 401
+        return f(*args, **kwargs)
+    return decorated
+
 # Home route redirects to login
 @app.route('/')
 def home():
@@ -37,9 +77,13 @@ def home():
 def login():
     if request.method == 'GET':
         # Get the service that is requesting authentication
-        service = request.args.get('service', None)
-        session['redirect_service'] = service
-        return render_template('login.html', service=service)
+        service_url = request.args.get('service', None)
+        session['redirect_service'] = service_url
+        
+        # Extract domain for display purposes using the helper function
+        service_domain = extract_domain(service_url)
+        
+        return render_template('login.html', service=service_domain)
     
     if request.method == 'POST':
         email = request.form.get('email')
@@ -54,7 +98,8 @@ def login():
         
         # If there's a service to redirect to, do it with the token
         if 'redirect_service' in result and 'token' in result:
-            redirect_url = f"https://{result['redirect_service']}/auth/callback?token={result['token']}"
+            # Use the full service URL directly without appending /auth/callback
+            redirect_url = f"{result['redirect_service']}?token={result['token']}"
             return redirect(redirect_url)
         
         # Otherwise just log in normally
@@ -65,8 +110,13 @@ def login():
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'GET':
-        service = request.args.get('service', None)
-        return render_template('signup.html', service=service)
+        service_url = request.args.get('service', None)
+        session['redirect_service'] = service_url
+        
+        # Extract domain for display purposes using the helper function
+        service_domain = extract_domain(service_url)
+                
+        return render_template('signup.html', service=service_domain)
     
     if request.method == 'POST':
         username = request.form.get('username')
@@ -85,7 +135,8 @@ def signup():
         
         # Redirect if needed
         if 'redirect_service' in result and 'token' in result:
-            redirect_url = f"https://{result['redirect_service']}/auth/callback?token={result['token']}"
+            # Use the full service URL directly without appending /auth/callback
+            redirect_url = f"{result['redirect_service']}?token={result['token']}"
             return redirect(redirect_url)
         
         return redirect(url_for('dashboard'))
@@ -158,6 +209,71 @@ def register_service():
             'client_secret': new_service['client_secret']
         }
     }), 201
+
+# User information API endpoints with security
+@app.route('/api/getuserbytoken', methods=['POST'])
+@api_auth_required
+def get_user_by_token_endpoint():
+    token = request.json.get('token', '')
+    
+    if not token:
+        return jsonify({'success': False, 'error': 'Token is required'}), 400
+    
+    # Use api module to get user by token
+    result = get_user_by_token(token)
+    
+    if not result['success']:
+        return jsonify(result), 404
+    
+    return jsonify(result)
+
+@app.route('/api/getuserbyid', methods=['POST'])
+@api_auth_required
+def get_user_by_id_endpoint():
+    user_id = request.json.get('id')
+    
+    if not user_id:
+        return jsonify({'success': False, 'error': 'User ID is required'}), 400
+    
+    # Use api module to get user by ID
+    result = get_user_by_id(user_id)
+    
+    if not result['success']:
+        return jsonify(result), 404
+    
+    return jsonify(result)
+
+@app.route('/api/getuserbyname', methods=['POST'])
+@api_auth_required
+def get_user_by_name_endpoint():
+    username = request.json.get('username')
+    
+    if not username:
+        return jsonify({'success': False, 'error': 'Username is required'}), 400
+    
+    # Use api module to get user by username
+    result = get_user_by_name(username)
+    
+    if not result['success']:
+        return jsonify(result), 404
+    
+    return jsonify(result)
+
+@app.route('/api/getuserbyemail', methods=['POST'])
+@api_auth_required
+def get_user_by_email_endpoint():
+    email = request.json.get('email')
+    
+    if not email:
+        return jsonify({'success': False, 'error': 'Email is required'}), 400
+    
+    # Use api module to get user by email
+    result = get_user_by_email(email)
+    
+    if not result['success']:
+        return jsonify(result), 404
+    
+    return jsonify(result)
 
 def get_service_by_domain(domain):
     """Get a service by domain"""
