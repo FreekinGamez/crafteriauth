@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Service - User Profile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #4285f4;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+        .profile-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .field {
+            margin-bottom: 10px;
+        }
+        .label {
+            font-weight: bold;
+            display: inline-block;
+            width: 150px;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <h1>User Profile</h1>
+        <div>
+            <a href="/" class="button">Back to Dashboard</a>
+            <a href="/logout" class="button">Logout</a>
+        </div>
+    </div>
+    
+    <div class="profile-card">
+        <div class="field">
+            <span class="label">Username:</span>
+            <span>{{ user.username }}</span>
+        </div>
+        <div class="field">
+            <span class="label">Email:</span>
+            <span>{{ user.email }}</span>
+        </div>
+        <div class="field">
+            <span class="label">Crafteri User ID:</span>
+            <span>{{ user.crafteri_user_id }}</span>
+        </div>
+        <div class="field">
+            <span class="label">Account Created:</span>
+            <span>{{ user.created_at }}</span>
+        </div>
+        <div class="field">
+            <span class="label">Last Login:</span>
+            <span>{{ user.last_login if user.last_login else 'N/A' }}</span>
+        </div>
+    </div>
+    
+    <p style="margin-top: 20px;">
+        This profile data is stored in the test service database.
+        It was populated using the information from your Crafteri Auth account.
+    </p>
+</body>
+</html>

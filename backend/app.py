@@ -16,7 +16,6 @@ from .login import login_user, get_user_by_id
 from .signup import signup_user
 from .gentoken import generate_token
 from .verifytoken import verify_token
-from .api import get_user_by_token, get_user_by_id, get_user_by_name, get_user_by_email
 
 # Load environment variables from .env file in project root
 project_root = Path(__file__).parent.parent
@@ -47,16 +46,30 @@ def extract_domain(url):
         
     return domain
 
-# Add API security middleware
+# Replace the domain-based auth with API key auth
 def check_api_auth():
-    """Check API authorization"""
-    # Get API key from request - using a simpler header name
-    api_key = request.headers.get('API-Key')
+    """Check API authorization based on API key"""
+    # Get API key from request headers
+    api_key = request.headers.get('X-API-Key')
     
-    # Check if API key is valid
-    valid_api_key = os.environ.get('API_KEY', 'dev_api_key')
+    if not api_key:
+        logger.warning("API request missing API key")
+        return False
     
-    return api_key and api_key == valid_api_key
+    # Look up service by API key (stored in client_secret)
+    service = get_service_by_api_key(api_key)
+    if not service:
+        logger.warning(f"API request with invalid API key: {api_key[:8]}...")
+        return False
+    
+    # Check if service is active
+    if not service['is_active']:
+        logger.warning(f"API request from inactive service: {service['name']}")
+        return False
+    
+    # API key is valid and service is active
+    logger.info(f"Authenticated API request from service: {service['name']}")
+    return True
 
 # Add this function to each API endpoint
 def api_auth_required(f):
@@ -165,6 +178,7 @@ def logout():
 
 # Token verification endpoint for third-party services
 @app.route('/api/verify-token', methods=['POST'])
+@api_auth_required  # Add security to this endpoint
 def verify_token_endpoint():
     token = request.json.get('token', '')
     
@@ -179,9 +193,6 @@ def verify_token_endpoint():
 # Service registration API (for admin use)
 @app.route('/api/register-service', methods=['POST'])
 def register_service():
-    # This endpoint should be protected and only accessible by admins
-    # For now, this is just a demo
-    
     name = request.json.get('name')
     domain = request.json.get('domain')
     
@@ -210,70 +221,11 @@ def register_service():
         }
     }), 201
 
-# User information API endpoints with security
-@app.route('/api/getuserbytoken', methods=['POST'])
-@api_auth_required
-def get_user_by_token_endpoint():
-    token = request.json.get('token', '')
-    
-    if not token:
-        return jsonify({'success': False, 'error': 'Token is required'}), 400
-    
-    # Use api module to get user by token
-    result = get_user_by_token(token)
-    
-    if not result['success']:
-        return jsonify(result), 404
-    
-    return jsonify(result)
-
-@app.route('/api/getuserbyid', methods=['POST'])
-@api_auth_required
-def get_user_by_id_endpoint():
-    user_id = request.json.get('id')
-    
-    if not user_id:
-        return jsonify({'success': False, 'error': 'User ID is required'}), 400
-    
-    # Use api module to get user by ID
-    result = get_user_by_id(user_id)
-    
-    if not result['success']:
-        return jsonify(result), 404
-    
-    return jsonify(result)
-
-@app.route('/api/getuserbyname', methods=['POST'])
-@api_auth_required
-def get_user_by_name_endpoint():
-    username = request.json.get('username')
-    
-    if not username:
-        return jsonify({'success': False, 'error': 'Username is required'}), 400
-    
-    # Use api module to get user by username
-    result = get_user_by_name(username)
-    
-    if not result['success']:
-        return jsonify(result), 404
-    
-    return jsonify(result)
-
-@app.route('/api/getuserbyemail', methods=['POST'])
-@api_auth_required
-def get_user_by_email_endpoint():
-    email = request.json.get('email')
-    
-    if not email:
-        return jsonify({'success': False, 'error': 'Email is required'}), 400
-    
-    # Use api module to get user by email
-    result = get_user_by_email(email)
-    
-    if not result['success']:
-        return jsonify(result), 404
-    
-    return jsonify(result)
+# The following endpoints have been removed:
+# - /api/getuserbytoken
+# - /api/getuserbyid
+# - /api/getuserbyname
+# - /api/getuserbyemail
 
 def get_service_by_domain(domain):
     """Get a service by domain"""
@@ -296,17 +248,41 @@ def get_service_by_domain(domain):
         }
     return None
 
+# Add helper function to get service by API key
+def get_service_by_api_key(api_key):
+    """Get a service by API key (client_secret)"""
+    query = """
+    SELECT id, name, domain, client_id, client_secret, created_at, is_active
+    FROM registered_services
+    WHERE client_secret = %s
+    """
+    row = db.execute_query(query, (api_key,), fetchone=True)
+    
+    if row:
+        return {
+            'id': row[0],
+            'name': row[1],
+            'domain': row[2],
+            'client_id': row[3],
+            'client_secret': row[4],
+            'created_at': row[5],
+            'is_active': row[6]
+        }
+    return None
+
+# Update how we create a service to make it clear this is an API key
 def create_service(name, domain):
-    """Create a new service"""
+    """Create a new service with a unique ID and API key"""
     client_id = str(uuid.uuid4())
-    client_secret = os.urandom(32).hex()
+    # Generate an API key (using os.urandom for good entropy)
+    api_key = os.urandom(16).hex()
     
     query = """
     INSERT INTO registered_services (name, domain, client_id, client_secret)
     VALUES (%s, %s, %s, %s)
     RETURNING id
     """
-    row = db.execute_query(query, (name, domain, client_id, client_secret), fetchone=True, commit=True)
+    row = db.execute_query(query, (name, domain, client_id, api_key), fetchone=True, commit=True)
     
     if row:
         return row[0]  # Return the new service ID

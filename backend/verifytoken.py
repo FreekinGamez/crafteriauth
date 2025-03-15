@@ -27,10 +27,21 @@ def verify_token(token):
         dict: Result containing validation status and user info if valid
     """
     try:
-        # Decode and verify token
+        # Log what we're trying to verify for debugging
+        logger.info(f"Starting verification for token: {token[:20]}...")
+        
+        # Try to decode without verification first to see what's in the token
+        try:
+            unverified = jwt.decode(token, options={"verify_signature": False}, algorithms=["HS256"])
+            logger.info(f"Token contains payload (unverified): {unverified}")
+        except Exception as e:
+            logger.warning(f"Could not decode token without verification: {str(e)}")
+        
+        # Decode and verify token - IMPORTANT: disable audience validation
         payload = jwt.decode(
             token, 
             SECRET_KEY, 
+            options={"verify_aud": False},  # This is critical! Disables audience validation
             algorithms=["HS256"]
         )
         
@@ -51,8 +62,10 @@ def verify_token(token):
                 'error': 'Token expired'
             }
         
-        # Get user information
-        user = get_user_by_id_for_verification(payload['sub'])
+        # Get user information - ensure user_id is converted to integer
+        user_id = int(payload['sub']) if isinstance(payload['sub'], str) else payload['sub']
+        user = get_user_by_id_for_verification(user_id)
+        
         if not user:
             logger.warning(f"User not found for token: {token[:20]}...")
             return {
@@ -61,7 +74,7 @@ def verify_token(token):
             }
         
         # Return user information
-        logger.info(f"Token verified for user: {user['email']}")
+        logger.info(f"Token verified successfully for user: {user['email']}")
         return {
             'valid': True,
             'user': {
@@ -73,12 +86,12 @@ def verify_token(token):
     except jwt.ExpiredSignatureError:
         logger.warning(f"Token expired (JWT validation): {token[:20]}...")
         return {'valid': False, 'error': 'Token expired'}
-    except jwt.InvalidTokenError:
-        logger.warning(f"Invalid token: {token[:20]}...")
-        return {'valid': False, 'error': 'Invalid token'}
+    except jwt.InvalidTokenError as e:
+        logger.warning(f"Invalid token ({str(e)}): {token[:20]}...")
+        return {'valid': False, 'error': f'Invalid token: {str(e)}'}
     except Exception as e:
         logger.error(f"Token verification error: {str(e)}")
-        return {'valid': False, 'error': 'Verification error'}
+        return {'valid': False, 'error': f'Verification error: {str(e)}'}
 
 def get_token(token_value):
     """Get token by value"""

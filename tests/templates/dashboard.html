@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Service - Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #4285f4;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <h1>Welcome, {{ user.username }}!</h1>
+        <div>
+            <a href="/profile" class="button">Profile</a>
+            <a href="/logout" class="button">Logout</a>
+        </div>
+    </div>
+    
+    <div>
+        <p>You are now logged in with your Crafteri account.</p>
+        <p>Your email address is: {{ user.email }}</p>
+    </div>
+</body>
+</html>

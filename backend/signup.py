@@ -1,7 +1,7 @@
 import logging
 import bcrypt
 from . import db
-from .api import get_user_by_email, get_user_by_id
+from .login import get_user_by_email, get_user_by_id
 
 # Configure logging
 logger = logging.getLogger('signup')
@@ -10,7 +10,7 @@ def signup_user(username, email, password, redirect_service=None):
     """Register a new user"""
     # Check if user already exists
     existing_user_result = get_user_by_email(email)
-    if existing_user_result['success']:
+    if (existing_user_result['success']):
         logger.warning(f"Signup attempt with existing email: {email}")
         return {
             'success': False,

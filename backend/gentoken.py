@@ -30,7 +30,7 @@ def generate_token(user_id, service=None):
     expiration = datetime.datetime.utcnow() + datetime.timedelta(hours=24)
     
     payload = {
-        'sub': user_id,
+        'sub': str(user_id),  # Convert to string here
         'iat': datetime.datetime.utcnow(),
         'exp': expiration,
     }
